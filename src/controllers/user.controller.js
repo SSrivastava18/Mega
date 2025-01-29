@@ -2,11 +2,9 @@ import {asyncHandler} from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { User } from '../models/user.model.js';
 import {uploadOnCloudinary} from '../utils/cloudinary.js';
+import {ApiResponse} from '../utils/ApiResponse.js';
 
 const registerUser = asyncHandler(async (req, res) => {
-    //remove password and refresh token from response
-    //check for user creation
-    //return response 
     
     //get user details from frontend
     const {username, email, password, fullname} = req.body;
@@ -61,6 +59,21 @@ const registerUser = asyncHandler(async (req, res) => {
         avatar: avatar.url,
         coverImage: coverImage.url
     })
+
+    //remove password and refresh token from response
+    const createdUser = await User.findById(user._id).select("-password -refreshToken");
+
+    //check for user creation
+    if(!createdUser){
+        throw new ApiError(500, "Error creating user");
+    }
+
+    //return response 
+    return res.status(201).json(new ApiResponse(200, "User created successfully", createdUser));
+    
+
+
+
 
 
 
